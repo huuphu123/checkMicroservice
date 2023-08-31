@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.swing.text.html.Option;
 import java.util.Optional;
@@ -25,8 +26,11 @@ public class EmployeeService {
     @Autowired
     private ModelMapper mapper;
 
+//    @Autowired
+//    private RestTemplate restTemplate;
+
     @Autowired
-    private RestTemplate restTemplate;
+    private WebClient webClient;
 
     public EmployeeDto saveEmployee(EmployeeDto employeeDto) {
         Optional<Employee> optionalEmployee = employeeRepository.findByEmail(employeeDto.getEmail());
@@ -51,8 +55,13 @@ public class EmployeeService {
             throw new ResourceNotFoundException("Employee", "id", id);
         }
 
-        ResponseEntity<DepartmentDto> responseEntity = restTemplate.getForEntity("http://localhost:8081/api/departments/" + optionalEmployee.get().getDepartmentCode(), DepartmentDto.class);
-        DepartmentDto departmentDto = responseEntity.getBody();
+//        ResponseEntity<DepartmentDto> responseEntity = restTemplate.getForEntity("http://localhost:8081/api/departments/" + optionalEmployee.get().getDepartmentCode(), DepartmentDto.class);
+//        DepartmentDto departmentDto = responseEntity.getBody();
+        DepartmentDto departmentDto = webClient.get()
+                .uri("http://localhost:8081/api/departments/" + optionalEmployee.get().getDepartmentCode())
+                .retrieve()
+                .bodyToMono(DepartmentDto.class)
+                .block();
         EmployeeDto employeeDto = mapper.map(optionalEmployee.get(), EmployeeDto.class);
 
         ApiResponseDto response = new ApiResponseDto(employeeDto, departmentDto);
