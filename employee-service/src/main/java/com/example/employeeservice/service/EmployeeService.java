@@ -29,8 +29,11 @@ public class EmployeeService {
 //    @Autowired
 //    private RestTemplate restTemplate;
 
+//    @Autowired
+//    private WebClient webClient;
+
     @Autowired
-    private WebClient webClient;
+    private ApiClient apiClient;
 
     public EmployeeDto saveEmployee(EmployeeDto employeeDto) {
         Optional<Employee> optionalEmployee = employeeRepository.findByEmail(employeeDto.getEmail());
@@ -57,11 +60,12 @@ public class EmployeeService {
 
 //        ResponseEntity<DepartmentDto> responseEntity = restTemplate.getForEntity("http://localhost:8081/api/departments/" + optionalEmployee.get().getDepartmentCode(), DepartmentDto.class);
 //        DepartmentDto departmentDto = responseEntity.getBody();
-        DepartmentDto departmentDto = webClient.get()
-                .uri("http://localhost:8081/api/departments/" + optionalEmployee.get().getDepartmentCode())
-                .retrieve()
-                .bodyToMono(DepartmentDto.class)
-                .block();
+//        DepartmentDto departmentDto = webClient.get()
+//                .uri("http://localhost:8081/api/departments/" + optionalEmployee.get().getDepartmentCode())
+//                .retrieve()
+//                .bodyToMono(DepartmentDto.class)
+//                .block();
+        DepartmentDto departmentDto = apiClient.getDepartment(optionalEmployee.get().getDepartmentCode());
         EmployeeDto employeeDto = mapper.map(optionalEmployee.get(), EmployeeDto.class);
 
         ApiResponseDto response = new ApiResponseDto(employeeDto, departmentDto);
